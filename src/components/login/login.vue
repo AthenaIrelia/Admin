@@ -5,23 +5,23 @@
       <h1>请登陆</h1>
       <div class="form">
         <p>用户名</p>
-        <el-input type="text" v-model="admin" placeholder="请输入内容"></el-input>
+        <el-input type="text" v-model="admin" placeholder="请输入账号"></el-input>
         <p>密码</p>
-        <el-input type="password" v-model="password" placeholder="请输入内容"></el-input>
+        <el-input type="password" v-model="password" placeholder="请输入密码"></el-input>
         <el-checkbox v-model="checked">记住密码</el-checkbox>
-        <el-button type="primary">登陆</el-button>
+        <el-button type="primary" @click="login">登陆</el-button>
       </div>
       <div class="nav-box">
         <span class="nav">注册</span>
         |
         <span class="nav">忘记密码</span>
       </div>
-
     </div>
   </div>
 </template>
 
 <script>
+import { mapMutations } from "vuex";
 export default {
   data() {
     return {
@@ -37,7 +37,39 @@ export default {
 
   // mounted: {},
 
-  methods: {}
+  methods: {
+    ...mapMutations(["setToken"]),
+    login() {
+      let _this = this;
+      this.$http
+        .post("http://ypay.surest.cn/api/user/login", {
+          account: this.admin,
+          password: this.password
+        })
+        .then(function(response) {
+          console.log(response.data.code);
+          if (response.data.code == 2000) {
+            _this.$message.success("登录成功");
+            _this.token = response.data.data;
+            _this.setToken({ token: _this.token });
+            _this.$router.push({ path: "/home" });
+
+            var storage = window.localStorage;
+            //alert(storage.getItem("token"));
+
+            if (this.$store.state.token) {
+              this.$router.push("/home");
+              console.log(this.$store.state.token.token);
+            } else {
+              this.$router.replace("/login");
+            }
+          }
+        })
+        .catch(function(error) {
+          // console.log(error);
+        });
+    }
+  }
 };
 </script>
 <style lang='stylus'>
@@ -113,13 +145,15 @@ export default {
         text-shadow: 0 -1px 1px #006799, 1px 0 1px #006799, 0 1px 1px #006799, -1px 0 1px #006799;
       }
     }
-    .nav-box{
-    margin-top 10px;
+
+    .nav-box {
+      margin-top: 10px;
     }
-    .nav{
-      display inline;
-      font-weight 400
-      cursor pointer
+
+    .nav {
+      display: inline;
+      font-weight: 400;
+      cursor: pointer;
     }
   }
 }
