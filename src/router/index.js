@@ -1,38 +1,58 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-
-import demo from '../views/demo.vue'
 import login from '../components/login/login.vue'
-import home from '../components/home/home.vue'
+import Home from '../components/home/home.vue'
+import main from '../views/main.vue'
+import code from '../views/code.vue'
+import page2 from '../views/page2.vue'
+import page3 from '../views/page3.vue'
+import page4 from '../views/page4.vue'
 
 
 Vue.use(VueRouter)
 
 const router = new VueRouter({
     routes: [
+
         {
             path: '/',
-            redirect: '/home'
-        },
-        {
-            path: '/login',
-            name: 'login',
-            component: login
-        },
-        {
-            path: '/home',
-            name: 'home',
-            component: home,
+            component: Home,
+            redirect: 'main',
             meta: {
                 requireAuth: true, // 判断是否需要登录
             },
             children: [
                 {
-                    path: 'admin',
-                    name: 'demo',
-                    component: demo
+                    path: 'main',
+                    name: '首页',
+                    component: main,
+                },
+                {
+                    path: 'code',
+                    name: '支付二维码列表',
+                    component: code
+                },
+                {
+                    path: 'page2',
+                    name: '新建二维码',
+                    component: page2
+                },
+                {
+                    path: 'page3',
+                    name: 'page3',
+                    component: page3
+                },
+                {
+                    path: 'page4',
+                    name: 'page4',
+                    component: page4
                 }
             ]
+        },
+        {
+            path: '/login',
+            name: 'login',
+            component: login
         }
     ]
 })
@@ -40,7 +60,7 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
     if (to.matched.some(record => record.meta.requireAuth)) { // 判断该路由是否需要登录权限
         // console.log('需要登录');
-        if (localStorage.getItem('Authorization')) { // 判断当前的token是否存在 ； 登录存入的token
+        if (localStorage.getItem('token')) { // 判断当前的token是否存在 ； 登录存入的token
             next();
         }
         else {

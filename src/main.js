@@ -2,6 +2,7 @@ import Vue from 'vue'
 import App from './App.vue'
 import './common/stylus/index.styl'
 import ElementUI from 'element-ui'
+import 'element-ui/lib/theme-chalk/index.css'
 import router from './router/index'
 import axios from 'axios'
 import store from './store/index'
@@ -20,8 +21,8 @@ new Vue({
 axios.interceptors.request.use(config => {
   // 在发送请求之前做些什么
   //判断是否存在token，如果存在将每个页面header都添加token
-  if (store.state.token) {
-    config.headers.common['Authorization'] = store.state.token.token
+  if (store.state.Authorization) {
+    config.headers.common['Authorization'] = store.state.Authorization
   }
 
   return config;

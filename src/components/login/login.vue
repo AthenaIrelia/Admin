@@ -17,17 +17,21 @@
         <span class="nav">忘记密码</span>
       </div>
     </div>
+    <div :class="{'hint':hint}">{{content}}</div>
   </div>
 </template>
 
 <script>
 import { mapMutations } from "vuex";
+import { setInterval, setTimeout } from "timers";
 export default {
   data() {
     return {
       admin: "",
       password: "",
-      checked: true
+      checked: true,
+      content: "",
+      hint: false
     };
   },
 
@@ -38,9 +42,16 @@ export default {
   // mounted: {},
 
   methods: {
-    ...mapMutations(["setToken"]),
     login() {
       let _this = this;
+      if (this.admin == "" || this.password == "") {
+        this.content = "请填写账号密码";
+        this.hint = true;
+        setTimeout(() => {
+          this.hint = false;
+        }, 2000);
+        return;
+      }
       this.$http
         .post("http://ypay.surest.cn/api/user/login", {
           account: this.admin,
@@ -50,24 +61,33 @@ export default {
           console.log(response.data.code);
           if (response.data.code == 2000) {
             _this.$message.success("登录成功");
-            _this.token = response.data.data;
-            _this.setToken({ token: _this.token });
-            _this.$router.push({ path: "/home" });
-
-            var storage = window.localStorage;
+        
+            
+            _this.token = response.data.data.access_token;
+            
+             window.localStorage.setItem('token',  _this.token)
+            _this.$router.push({ path: "/" });
+              
+            // var storage = window.localStorage;
             //alert(storage.getItem("token"));
 
             if (this.$store.state.token) {
               this.$router.push("/home");
-              console.log(this.$store.state.token.token);
+              // console.log(this.$store.state.token.token);
             } else {
               this.$router.replace("/login");
             }
+          } else {
+            _this.content = "账号密码错误";
+            _this.hint = true;
+            setTimeout(() => {
+              _this.hint = false;
+            }, 2000);
           }
         })
-        .catch(function(error) {
-          // console.log(error);
-        });
+        // .catch(function(error) {
+        //   // console.log(error);
+        // });
     }
   }
 };
@@ -117,6 +137,7 @@ export default {
         height: 30px;
         margin: 0 auto;
         display: flex;
+        padding-left: 10px;
       }
 
       .el-checkbox {
@@ -155,6 +176,21 @@ export default {
       font-weight: 400;
       cursor: pointer;
     }
+  }
+
+  .hint {
+    width: 120px;
+    height: 50px;
+    padding: 25px;
+    background-color: black;
+    opacity: 0.7;
+    // padding: 10% 0 0;
+    margin: auto;
+    position: relative;
+    top: -220px;
+    color: #FFFFFF;
+    line-height: 50px;
+    text-align center;
   }
 }
 </style>
